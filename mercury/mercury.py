@@ -46,7 +46,7 @@ def get_sounding_data(kwargs):
     month = the_date.month
     day = the_date.day
 
-    if the_hour is not '00' or the_hour is not '12':
+    if the_hour is not '00' and the_hour is not '12':
         print('Wrong time for radiosounding given, using "00" instead.')
         hour = '00'
     else:

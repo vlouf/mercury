@@ -8,13 +8,12 @@ with open('LICENSE') as f:
 
 setup(
     name='Mercury',
-    version='0.1.0',
-    description='Retrieves radiosounding data for a specified station (e.g. YPDN for Darwin) at specified dates.',
+    version='0.2.0',
+    description='Download radiosounding data.',
     long_description=readme,
     author='Valentin Louf',
-    author_email='valentin.louf@bom.com.au',
-    url='https://github.com/',
+    author_email='valentin.louf@bom.gov.au',
+    url='https://github.com/vlouf/mercury',
     license=license,
     packages=find_packages(exclude=('tests', 'docs'))
 )
-
