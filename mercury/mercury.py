@@ -1,7 +1,8 @@
 """
 .. module:: mercury
    :platform: Unix, Windows
-   :synopsis: Retrieves radiosounding data for a specified station (e.g. YPDN for Darwin) at specified dates.
+   :synopsis: Retrieves radiosounding data for a specified station (e.g. YPDN
+              for Darwin) at specified dates.
 
 .. moduleauthor:: Valentin Louf <valentin.louf@bom.com.au>
 
@@ -12,6 +13,7 @@ import os
 import pickle
 import string
 import pandas
+import datetime
 import urllib.request
 
 from bs4 import BeautifulSoup
@@ -64,6 +66,9 @@ def get_sounding_data(kwargs):
     ascii_txt = "\n".join(splitted[4:])
     outfile = "%s_%i%02i%02i_%s.txt" % (station_id, year, month, day, hour)
 
+    print("Sounding for " + station_id + " " + the_date.strftime("%d-%b-%Y") +
+          " downloaded.")
+
     return {'filename':outfile, 'data':ascii_txt}
 
 
@@ -84,7 +89,7 @@ def save_data_ascii(outfilename, txt):
     return None
 
 
-def mercury(station_id='YPDN', bg_date=None, end_date=None, the_hour='00',
+def mercury(station_id=None, bg_date=None, end_date=None, the_hour='00',
             outpath="soundings/", ncpu=1, save_ascii=False, save_pkl=True):
     """
     Retrieves radiosounding data.
@@ -109,6 +114,10 @@ def mercury(station_id='YPDN', bg_date=None, end_date=None, the_hour='00',
         Save the results in a general pickle file.
     """
 
+    if station_id is None:
+        raise TypeError("Required argument station_id." +
+                        "Call station_list() to get the list of station")
+
     if not os.path.exists(outpath):  # Check if output directory exists
         os.makedirs(outpath)
 
@@ -120,10 +129,58 @@ def mercury(station_id='YPDN', bg_date=None, end_date=None, the_hour='00',
 
     if save_ascii:
         for rslt_slice in rslt:
-            save_data_ascii(outpath + rslt_slice['filename'], rslt_slice['data'])
+            save_data_ascii(outpath + rslt_slice['filename'],
+                            rslt_slice['data'])
 
     if save_pkl:
         with open(outpath + 'dwl_data.pkl', 'wb') as f:
             pickle.dump(rslt, f)
+
+    return None
+
+
+def station_list():
+    """
+    List all available stations and their id number.
+    """
+
+    maps = ['samer', 'europe', 'naconf', 'pac', 'nz', 'ant', 'np',
+            'africa', 'seasia', 'mideast']
+
+    desc = {'samer': 'South America',
+            'europe': 'Europe',
+            'naconf': 'North America',
+            'pac': 'South Pacific',
+            'nz': 'New Zealand',
+            'ant': 'Antartica',
+            'np': 'Artic',
+            'africa': 'Africa',
+            'seasia': 'South-East Asia',
+            'mideast': 'Middle East'}
+
+    for suffix in maps:
+        url = "http://weather.uwyo.edu/upperair/%s.html" % (suffix)
+        with urllib.request.urlopen(url) as f:
+            content = f.read()
+        soup = BeautifulSoup(content, "html.parser")
+
+        st_id = []
+        st_nm = []
+
+        print(desc[suffix] + ":\n")
+        print("\t\tStation id - Station name")
+
+        for ar in soup.find_all('area'):
+            st = ar.get('onmouseover')
+            rgm = re.findall("[0-9]+", st)
+            dgm = re.split("[0-9]+", st)
+            try:
+                st_nm.append(dgm[1][2:-2])
+                st_id.append(rgm[0] )
+                print("\t\t%s - %s" % (rgm[0], dgm[1][2:-2]))
+            except IndexError:
+                break
+
+        print("\n")
 
     return None
