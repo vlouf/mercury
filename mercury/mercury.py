@@ -4,7 +4,7 @@
    :synopsis: Retrieves radiosounding data for a specified station (e.g. YPDN
               for Darwin) at specified dates.
 
-.. moduleauthor:: Valentin Louf <valentin.louf@bom.com.au>
+.. moduleauthor:: Valentin Louf <valentin.louf@bom.gov.au>
 
 
 """
@@ -72,23 +72,6 @@ def get_sounding_data(kwargs):
     return {'filename':outfile, 'data':ascii_txt}
 
 
-def save_data_ascii(outfilename, txt):
-    """
-    Save data in an ASCII text file
-
-    Parameters
-    ----------
-    outfilename : str
-        Output file name.
-    txt : str
-        Text to be saved
-    """
-    with open(outfilename, 'w+') as f:
-        f.write(txt)
-
-    return None
-
-
 def mercury(station_id=None, bg_date=None, end_date=None, the_hour='00',
             outpath="soundings/", ncpu=1, save_ascii=False, save_pkl=True):
     """
@@ -129,8 +112,8 @@ def mercury(station_id=None, bg_date=None, end_date=None, the_hour='00',
 
     if save_ascii:
         for rslt_slice in rslt:
-            save_data_ascii(outpath + rslt_slice['filename'],
-                            rslt_slice['data'])
+            with open(outpath + rslt_slice['filename'], 'w+') as f:
+                f.write(rslt_slice['data'])
 
     if save_pkl:
         with open(outpath + 'dwl_data.pkl', 'wb') as f:
