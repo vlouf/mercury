@@ -1,2 +1,5 @@
 *.pyo
 *.pyc
+build/*
+dist/*
+Mercury.*

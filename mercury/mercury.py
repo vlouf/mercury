@@ -9,6 +9,7 @@
 
 """
 
+import re
 import os
 import pickle
 import string
